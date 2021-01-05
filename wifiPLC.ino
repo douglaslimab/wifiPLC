@@ -1,6 +1,13 @@
 //-----------------------------------------------------------------
-//  wifiPLC
+//  Name: wifiPLC  Date Created: 13/05/2020
+//  Author: Douglas Lima    Date Modified: 05/01/2021
+//  Board: Arduino Uno WIFI Rev 02
 //-----------------------------------------------------------------
+//  Description: 
+//
+//-----------------------------------------------------------------
+//  Devices:  WIFI library
+//            Relay Shield
 //-----------------------------------------------------------------
 
 #include <SPI.h>
@@ -74,6 +81,9 @@ void loop(){
           Serial.write(c);
           
           if (c == '\n'){
+//-----------------------------------------------------------------
+//  relays switching
+//-----------------------------------------------------------------
             if(readString.indexOf("?r1on") > 0){
               digitalWrite(relay1, HIGH);
               delay(1);
@@ -103,15 +113,15 @@ void loop(){
                 delay(1);
               }
 //-----------------------------------------------------------------
-//  HTML part
+//  HTML code
 //-----------------------------------------------------------------              
             client.println("<html>");
             client.println("<head>");
 //            client.println("<meta charset="UTF-8">");
             client.println("<title> Douglas Iot </title>");
             client.println("</head>");
+            
             client.println("<body>");
-
             client.println("Relay 1: ");
             client.println(digitalRead(relay1));
             client.println("<br />");
@@ -138,7 +148,7 @@ void loop(){
             client.println("</body>");
             client.println("</html>");
 //-----------------------------------------------------------------
-            readString="";
+            readString = "";
 
             delay(10);
             client.stop();
@@ -150,6 +160,9 @@ void loop(){
   }
 }
 
+//-----------------------------------------------------------------
+//  acceloremeter reading
+//-----------------------------------------------------------------
 void  accelRead(){
   if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(x, y, z);
