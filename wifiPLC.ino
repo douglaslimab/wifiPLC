@@ -42,6 +42,13 @@ char ssid[] = "Douglas";
 char pass[] = "hzzs03322";
 int keyIndex = 0;
 
+//Time Control------------------------------------------
+unsigned long currentMillis;
+long previousMillis = 0;
+long previousMillis2 = 0;
+long previousMillis3 = 0;
+float loopTime = 10;
+
 float x, y, z;
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
@@ -101,28 +108,29 @@ void setup(){
 }
 
 void loop(){
-  WiFiClient client = server.available();
-  if (client){
-    Serial.println("new client");
+    WiFiClient client = server.available();
+    
+    if (client){
+      Serial.println(client);
 
-    while (client.connected()){
-      if (client.available()){
-        char c = client.read();
+      while (client.connected()){
+        if (client.available()){
+          char c = client.read();
 
-        accelRead();
+          accelRead();
         
-        if (readString.length() < 100){
-          readString += c;
-          Serial.write(c);
+          if (readString.length() < 100){
+            readString += c;
+            Serial.write(c);
           
-          if (c == '\n'){
-//-----------------------------------------------------------------
-//  relays switching
-//-----------------------------------------------------------------
-            if(readString.indexOf("?r1on") > 0){
-              digitalWrite(relay1, HIGH);
-              delay(1);
-            } else if(readString.indexOf("?r1off") > 0){
+            if (c == '\n'){
+              //-----------------------------------------------------------------
+              //  relays switching
+              //-----------------------------------------------------------------
+              if(readString.indexOf("?r1on") > 0){
+                digitalWrite(relay1, HIGH);
+                delay(1);
+              } else if(readString.indexOf("?r1off") > 0){
                 digitalWrite(relay1, LOW);    
                 delay(1);
               } else if(readString.indexOf("?r2on") > 0){
@@ -143,56 +151,59 @@ void loop(){
               } else if(readString.indexOf("?r4off") > 0){
                 digitalWrite(relay4, LOW);    
                 delay(1);
+              } else if(readString.indexOf("?status") > 0){
+                Serial.println("page refresh");
+                delay(1);
               } else{
                 Serial.print("Envia dado");
                 delay(1);
               }
-//-----------------------------------------------------------------
-//  HTML code
-//-----------------------------------------------------------------              
-            client.println("<html>");
-            client.println("<head>");
-//            client.println("<meta charset="UTF-8">");
-            client.println("<title> Douglas Iot </title>");
-            client.println("</head>");
+              //-----------------------------------------------------------------
+              //  HTML code
+              //-----------------------------------------------------------------
+              client.println("<html>");
+              client.println("<head>");
+//              client.println("<meta charset="UTF-8">");
+              client.println("<title> Douglas Iot </title>");
+              client.println("</head>");
             
-            client.println("<body>");
-            client.println("Relay 1: ");
-            client.println(digitalRead(relay1));
-            client.println("<br />");
-            client.println("Relay 2: ");
-            client.println(digitalRead(relay2));
-            client.println("<br />");
-            client.println("Relay 3: ");
-            client.println(digitalRead(relay3));
-            client.println("<br />");
-            client.println("Relay 4: ");
-            client.println(digitalRead(relay4));
-            client.println("<br />");
-            
-            client.println("Accel x: ");
-            client.println(x);
-            client.println("<br />");
-            client.println("Accel y: ");
-            client.println(y);
-            client.println("<br />");
-            client.println("Accel z: ");
-            client.println(z);
-            client.println("<br />");
-            
-            client.println("</body>");
-            client.println("</html>");
-//-----------------------------------------------------------------
-            readString = "";
-
-            delay(10);
-            client.stop();
-            Serial.println();
+              client.println("<body>");
+              client.println("Relay 1: ");
+              client.println(digitalRead(relay1));
+              client.println("<br />");
+              client.println("Relay 2: ");
+              client.println(digitalRead(relay2));
+              client.println("<br />");
+              client.println("Relay 3: ");
+              client.println(digitalRead(relay3));
+              client.println("<br />");
+              client.println("Relay 4: ");
+              client.println(digitalRead(relay4));
+              client.println("<br />");
+         
+              client.println("Accel x: ");
+              client.println(x);
+              client.println("<br />");
+              client.println("Accel y: ");
+              client.println(y);
+              client.println("<br />");
+              client.println("Accel z: ");
+              client.println(z);
+              client.println("<br />");
+          
+              client.println("</body>");
+              client.println("</html>");
+              //-----------------------------------------------------------------
+              
+              readString = "";
+              delay(10);
+              client.stop();
+              Serial.println();
+            }
           }
-        }
-      }
+        }  
+      }  
     }
-  }
 }
 
 //-----------------------------------------------------------------
