@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
 //  Name: wifiPLC  Date Created: 13/05/2020
-//  Author: Douglas Lima    Date Modified: 05/01/2021
+//  Author: Douglas Lima    Date Modified: 06/01/2021
 //  Board: Arduino Uno WIFI Rev 02
 //-----------------------------------------------------------------
 //  Description: 
@@ -14,10 +14,29 @@
 #include <WiFiNINA.h>
 #include <Arduino_LSM6DS3.h>
 
+//  digital outputs
 #define relay1 4
 #define relay2 7
 #define relay3 8
 #define relay4 12
+
+//  digital inputs
+#define din01 2
+#define din02 10
+#define din03 11
+#define din04 13
+
+//  analog outputs
+#define a_out01 3
+#define a_out02 5
+#define a_out03 6
+#define a_out04 9
+
+//  analog inputs
+#define a_in01 A1
+#define a_in02 A2
+#define a_in03 A3
+#define a_in04 A4
 
 char ssid[] = "Douglas";
 char pass[] = "hzzs03322";
@@ -34,8 +53,23 @@ void setup(){
   pinMode(relay2, OUTPUT);
   pinMode(relay3, OUTPUT);
   pinMode(relay4, OUTPUT);
+
+  pinMode(din01, INPUT);
+  pinMode(din02, INPUT);
+  pinMode(din03, INPUT);
+  pinMode(din04, INPUT);
+
+  pinMode(a_out01, OUTPUT);
+  pinMode(a_out02, OUTPUT);
+  pinMode(a_out03, OUTPUT);
+  pinMode(a_out04, OUTPUT);
+
+  pinMode(a_in01, INPUT);
+  pinMode(a_in02, INPUT);
+  pinMode(a_in03, INPUT);
+  pinMode(a_in04, INPUT);
   
-  Serial.begin(9600);
+  Serial.begin(9600); // Rx = 0, Tx = 1
 
   while (status != WL_CONNECTED){
     Serial.print("Attempting to connect to Ne twork named: ");
@@ -43,6 +77,7 @@ void setup(){
     status = WiFi.begin(ssid, pass);
     delay(10000);
   }
+  
   server.begin();
 
   Serial.print("SSID: ");
