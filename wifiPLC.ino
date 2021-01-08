@@ -120,6 +120,7 @@ void loop(){
           accelRead();
         
           if (readString.length() < 100){
+            String aReader;
             readString += c;
             Serial.write(c);
           
@@ -151,13 +152,19 @@ void loop(){
               } else if(readString.indexOf("?r4off") > 0){
                 digitalWrite(relay4, LOW);    
                 delay(1);
-              } else if(readString.indexOf("?status") > 0){
+              } else if(readString.indexOf("?a1") > 0){
                 Serial.println("page refresh");
+                aReader = readString.substring(20, 29);
+                Serial.print("Analog: ");
+                Serial.println(aReader);
                 delay(1);
               } else{
-                Serial.print("Envia dado");
+                Serial.println("Envia dado");
                 delay(1);
               }
+
+//              if(readString.indexOf(
+                
               //-----------------------------------------------------------------
               //  HTML code
               //-----------------------------------------------------------------
@@ -166,78 +173,113 @@ void loop(){
 //              client.println("<meta charset="UTF-8">");
               client.println("<title> Douglas Iot </title>");
               client.println("</head>");
+
+              client.println("<table>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital output 01: ");
+              client.print(digitalRead(relay1));
+              client.println("</td>");
+              client.print("<td>");
+              client.print(" ");
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog output 01: ");
+              client.print(analogRead(a_out01));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital output 02: ");
+              client.print(digitalRead(relay2));
+              client.println("</td>");
+              client.print("<td>");
+              client.print(" ");
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog output 02: ");
+              client.print(analogRead(a_out02));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital output 03: ");
+              client.print(digitalRead(relay3));
+              client.println("</td>");
+              client.print("<td>");
+              client.print(" ");
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog output 03: ");
+              client.print(analogRead(a_out03));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital output 04: ");
+              client.print(digitalRead(relay4));
+              client.println("</td>");
+              client.print("<td>");
+              client.print(" ");
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog output 04: ");
+              client.print(analogRead(a_out04));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("</table>");
+
+              client.println("<table>");
+              client.print("<table>");
+              client.print("<td>");
+              client.print(" ");
+              client.println("</td>");
+              client.println("</rd>");
+              client.println("</table>");
               
-              // digital outputs
-              client.println("<body>");
-              client.println("Relay 1: ");
-              client.println(digitalRead(relay1));
-              client.println("<br />");
-              client.println("Relay 2: ");
-              client.println(digitalRead(relay2));
-              client.println("<br />");
-              client.println("Relay 3: ");
-              client.println(digitalRead(relay3));
-              client.println("<br />");
-              client.println("Relay 4: ");
-              client.println(digitalRead(relay4));
-              client.println("<br />");
-              
-              // analog outputs              
-              client.println("<body>");
-              client.println("Analog output 01: ");
-              client.println(analogRead(a_out01));
-              client.println("<br />");
-              client.println("Analog output 02: ");
-              client.println(analogRead(a_out02));
-              client.println("<br />");
-              client.println("Analog output 03: ");
-              client.println(analogRead(a_out03));
-              client.println("<br />");
-              client.println("Analog output 04: ");
-              client.println(analogRead(a_out04));
-              client.println("<br />");
-              
-              // digital inputs
-              client.println("<body>");
-              client.println("Input 1: ");
-              client.println(digitalRead(din01));
-              client.println("<br />");
-              client.println("Input 2: ");
-              client.println(digitalRead(din02));
-              client.println("<br />");
-              client.println("Input 3: ");
-              client.println(digitalRead(din03));
-              client.println("<br />");
-              client.println("Input 4: ");
-              client.println(digitalRead(din04));
-              client.println("<br />");
-              
-              // analog inputs              
-              client.println("<body>");
-              client.println("Analog input 01: ");
-              client.println(analogRead(a_in01));
-              client.println("<br />");
-              client.println("Analog input 02: ");
-              client.println(analogRead(a_in02));
-              client.println("<br />");
-              client.println("Analog input 03: ");
-              client.println(analogRead(a_in03));
-              client.println("<br />");
-              client.println("Analog input 04: ");
-              client.println(analogRead(a_in04));
-              client.println("<br />");
-              
-              // accelerometer reading
-              client.println("Accel x: ");
-              client.println(x);
-              client.println("<br />");
-              client.println("Accel y: ");
-              client.println(y);
-              client.println("<br />");
-              client.println("Accel z: ");
-              client.println(z);
-              client.println("<br />");
-          
+              client.println("<table>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital input 01: ");
+              client.print(digitalRead(din01));
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog input 01: ");
+              client.print(analogRead(a_in01));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital input 02: ");
+              client.print(digitalRead(din02));
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog input 02: ");
+              client.print(analogRead(a_in02));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital input 03: ");
+              client.print(digitalRead(din03));
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog input 03: ");
+              client.print(analogRead(a_in03));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("<tr>");
+              client.print("<td>");
+              client.print("Digital input 04: ");
+              client.print(digitalRead(din04));
+              client.println("</td>");
+              client.print("<td>");
+              client.print("Analog input 04: ");
+              client.print(analogRead(a_in04));
+              client.println("</td>");
+              client.println("</tr>");
+              client.println("</table>");
+
               client.println("</body>");
               client.println("</html>");
               //-----------------------------------------------------------------
