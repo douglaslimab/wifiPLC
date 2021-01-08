@@ -153,8 +153,9 @@ void loop(){
                 digitalWrite(relay4, LOW);    
                 delay(1);
               } else if(readString.indexOf("?a1") > 0){
-                Serial.println("page refresh");
-                aReader = readString.substring(20, 29);
+                aReader = readString.substring(8, 11);
+                
+//                analogWrite(a_out01, aReader);
                 Serial.print("Analog: ");
                 Serial.println(aReader);
                 delay(1);
@@ -162,8 +163,6 @@ void loop(){
                 Serial.println("Envia dado");
                 delay(1);
               }
-
-//              if(readString.indexOf(
                 
               //-----------------------------------------------------------------
               //  HTML code
