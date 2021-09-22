@@ -38,8 +38,8 @@
 #define a_in03 A3
 #define a_in04 A4
 
-char ssid[] = "Douglas";
-char pass[] = "hzzs03322";
+char ssid[] = "VM47E4856";          //"Douglas";
+char pass[] = "7z4ycmhbRaMh";       //"hzzs03322";
 int keyIndex = 0;
 
 //Time Control------------------------------------------
