@@ -38,8 +38,8 @@
 #define a_in03 A3
 #define a_in04 A4
 
-char ssid[] = "VM47E4856";          //"Douglas";
-char pass[] = "7z4ycmhbRaMh";       //"hzzs03322";
+char ssid[] = "Douglas";//"VM47E4856";          //"Douglas";
+char pass[] = "hzzs03322";//"7z4ycmhbRaMh";       //"hzzs03322";
 int keyIndex = 0;
 
 //Time Control------------------------------------------
@@ -79,7 +79,7 @@ void setup(){
   Serial.begin(9600); // Rx = 0, Tx = 1
 
   while (status != WL_CONNECTED){
-    Serial.print("Attempting to connect to Ne twork named: ");
+    Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, pass);
     delay(10000);
@@ -115,7 +115,7 @@ void loop(){
 
       while (client.connected()){
         if (client.available()){
-          char c = client.read();
+          char c = client.read();   //*
 
           accelRead();
         
@@ -153,12 +153,12 @@ void loop(){
                 digitalWrite(relay4, LOW);    
                 delay(1);
               } else if(readString.indexOf("?a1") > 0){
-                aReader = readString.substring(8, 11);
+//                aReader = readString.substring(8, 11);
                 
 //                analogWrite(a_out01, aReader);
-                Serial.print("Analog: ");
-                Serial.println(aReader);
-                delay(1);
+//                Serial.print("Analog: ");
+//                Serial.println(aReader);
+//                delay(1);
               } else{
                 Serial.println("Envia dado");
                 delay(1);
@@ -167,6 +167,37 @@ void loop(){
               //-----------------------------------------------------------------
               //  HTML code
               //-----------------------------------------------------------------
+              htmlCode();
+              //-----------------------------------------------------------------
+            }
+          }
+        }  
+      }  
+    }
+}
+
+//-----------------------------------------------------------------
+//  acceloremeter reading
+//-----------------------------------------------------------------
+void  accelRead(){
+  if (IMU.accelerationAvailable()) {
+    IMU.readAcceleration(x, y, z);
+
+    Serial.print(x);
+    Serial.print('\t');
+    Serial.print(y);
+    Serial.print('\t');
+    Serial.println(z);
+  }
+}
+
+
+//-------------
+//  html code
+//-------------
+void htmlCode(){
+    WiFiClient client = server.available();
+    
               client.println("<html>");
               client.println("<head>");
 //              client.println("<meta charset="UTF-8">");
@@ -281,30 +312,9 @@ void loop(){
 
               client.println("</body>");
               client.println("</html>");
-              //-----------------------------------------------------------------
               
               readString = "";
               delay(10);
               client.stop();
               Serial.println();
-            }
-          }
-        }  
-      }  
-    }
-}
-
-//-----------------------------------------------------------------
-//  acceloremeter reading
-//-----------------------------------------------------------------
-void  accelRead(){
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
-
-    Serial.print(x);
-    Serial.print('\t');
-    Serial.print(y);
-    Serial.print('\t');
-    Serial.println(z);
-  }
 }
