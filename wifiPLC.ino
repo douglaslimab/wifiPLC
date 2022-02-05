@@ -10,9 +10,23 @@
 //            Relay Shield
 //-----------------------------------------------------------------
 
-#include <SPI.h>
 #include <WiFiNINA.h>
 #include <Arduino_LSM6DS3.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+String r1 = "off";
+String r2 = "off";
+String r3 = "off";
+String r4 = "off";
 
 //  digital outputs
 #define relay1 4
@@ -56,6 +70,11 @@ WiFiServer server(80);
 String readString;
 
 void setup(){
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
   pinMode(relay1, OUTPUT);
   pinMode(relay2, OUTPUT);
   pinMode(relay3, OUTPUT);
@@ -130,27 +149,43 @@ void loop(){
               //-----------------------------------------------------------------
               if(readString.indexOf("?r1on") > 0){
                 digitalWrite(relay1, HIGH);
+                if(digitalRead(relay1))
+                  r1 = "on";
                 delay(1);
               } else if(readString.indexOf("?r1off") > 0){
                 digitalWrite(relay1, LOW);    
+                if(!digitalRead(relay1))
+                  r1 = "off";
                 delay(1);
               } else if(readString.indexOf("?r2on") > 0){
                 digitalWrite(relay2, HIGH);    
+                if(digitalRead(relay2))
+                  r2 = "on";
                 delay(1);
               } else if(readString.indexOf("?r2off") > 0){
                 digitalWrite(relay2, LOW);    
+                if(!digitalRead(relay2))
+                  r2 = "off";
                 delay(1);
               } else if(readString.indexOf("?r3on") > 0){
-                digitalWrite(relay3, HIGH);    
+                digitalWrite(relay3, HIGH);   
+                if(digitalRead(relay3))
+                  r3 = "on"; 
                 delay(1);
               } else if(readString.indexOf("?r3off") > 0){
                 digitalWrite(relay3, LOW);    
+                if(!digitalRead(relay3))
+                  r3 = "off";
                 delay(1);
               } else if(readString.indexOf("?r4on") > 0){
                 digitalWrite(relay4, HIGH);    
+                if(digitalRead(relay4))
+                  r4 = "on";
                 delay(1);
               } else if(readString.indexOf("?r4off") > 0){
-                digitalWrite(relay4, LOW);    
+                digitalWrite(relay4, LOW);  
+                if(!digitalRead(relay4))
+                  r4 = "off";  
                 delay(1);
               } else if(readString.indexOf("?a1") > 0){
 //                aReader = readString.substring(8, 11);
@@ -163,6 +198,8 @@ void loop(){
                 Serial.println("Envia dado");
                 delay(1);
               }
+
+              relay_state_screen();
                 
               //-----------------------------------------------------------------
               //  HTML code
@@ -317,4 +354,24 @@ void htmlCode(){
               delay(10);
               client.stop();
               Serial.println();
+}
+
+void relay_state_screen(void) {
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+
+  display.print(F("Relay 1: "));
+  display.println(r1);
+  display.print(F("Relay 2: "));
+  display.println(r2);
+  display.print(F("Relay 3: "));
+  display.println(r3);
+  display.print(F("Relay 4: "));
+  display.println(r4);
+
+  display.display();
+  delay(100);
 }
