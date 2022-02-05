@@ -70,11 +70,18 @@ WiFiServer server(80);
 String readString;
 
 void setup(){
+  digitalWrite(relay1, LOW);      
+  digitalWrite(relay2, LOW);      
+  digitalWrite(relay3, LOW);      
+  digitalWrite(relay4, LOW);   
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+
+  display_init();
+
   pinMode(relay1, OUTPUT);
   pinMode(relay2, OUTPUT);
   pinMode(relay3, OUTPUT);
@@ -95,13 +102,14 @@ void setup(){
   pinMode(a_in03, INPUT);
   pinMode(a_in04, INPUT);
   
-  Serial.begin(9600); // Rx = 0, Tx = 1
+  Serial.begin(9600);
 
   while (status != WL_CONNECTED){
     Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, pass);
-    delay(10000);
+    display_init();
+    delay(1000);
   }
   
   server.begin();
@@ -111,10 +119,10 @@ void setup(){
   IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
   Serial.println(ip);
+  delay(1000);
 
   if (!IMU.begin()) {
     Serial.println("Failed to initialize IMU!");
-
     while (1);
   }
 
@@ -124,6 +132,11 @@ void setup(){
   Serial.println();
   Serial.println("Acceleration in G's");
   Serial.println("X\tY\tZ");
+
+  digitalWrite(relay1, LOW);      
+  digitalWrite(relay2, LOW);      
+  digitalWrite(relay3, LOW);      
+  digitalWrite(relay4, LOW);      
 }
 
 void loop(){
@@ -200,19 +213,13 @@ void loop(){
               }
 
               relay_state_screen();
-                
-              //-----------------------------------------------------------------
-              //  HTML code
-              //-----------------------------------------------------------------
               htmlCode();
-              //-----------------------------------------------------------------
             }
           }
         }  
       }  
     }
 }
-
 //-----------------------------------------------------------------
 //  acceloremeter reading
 //-----------------------------------------------------------------
@@ -227,135 +234,60 @@ void  accelRead(){
     Serial.println(z);
   }
 }
-
-
 //-------------
 //  html code
 //-------------
 void htmlCode(){
-    WiFiClient client = server.available();
-    
-              client.println("<html>");
-              client.println("<head>");
-//              client.println("<meta charset="UTF-8">");
-              client.println("<title> Douglas Iot </title>");
-              client.println("</head>");
+  WiFiClient client = server.available();
 
-              client.println("<table>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital output 01: ");
-              client.print(digitalRead(relay1));
-              client.println("</td>");
-              client.print("<td>");
-              client.print(" ");
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog output 01: ");
-              client.print(analogRead(a_out01));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital output 02: ");
-              client.print(digitalRead(relay2));
-              client.println("</td>");
-              client.print("<td>");
-              client.print(" ");
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog output 02: ");
-              client.print(analogRead(a_out02));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital output 03: ");
-              client.print(digitalRead(relay3));
-              client.println("</td>");
-              client.print("<td>");
-              client.print(" ");
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog output 03: ");
-              client.print(analogRead(a_out03));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital output 04: ");
-              client.print(digitalRead(relay4));
-              client.println("</td>");
-              client.print("<td>");
-              client.print(" ");
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog output 04: ");
-              client.print(analogRead(a_out04));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("</table>");
+  client.println("<html><head><meta charset='UTF-8'><title> Douglas Iot </title>");
+  client.println("<style>body{margin: 1rem; padding: 1rem; display: flex; flex-direction: column; justify-content: center; items-align: center; border: 1px solid #0f0;color: #0f0;background-color: #333;}");
+  client.println("table{ }</style></head>");
 
-              client.println("<table>");
-              client.print("<table>");
-              client.print("<td>");
-              client.print(" ");
-              client.println("</td>");
-              client.println("</rd>");
-              client.println("</table>");
-              
-              client.println("<table>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital input 01: ");
-              client.print(digitalRead(din01));
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog input 01: ");
-              client.print(analogRead(a_in01));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital input 02: ");
-              client.print(digitalRead(din02));
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog input 02: ");
-              client.print(analogRead(a_in02));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital input 03: ");
-              client.print(digitalRead(din03));
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog input 03: ");
-              client.print(analogRead(a_in03));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("<tr>");
-              client.print("<td>");
-              client.print("Digital input 04: ");
-              client.print(digitalRead(din04));
-              client.println("</td>");
-              client.print("<td>");
-              client.print("Analog input 04: ");
-              client.print(analogRead(a_in04));
-              client.println("</td>");
-              client.println("</tr>");
-              client.println("</table>");
+    client.println("<body><table><tr><td>Digital output 01: ");
+    client.print(digitalRead(relay1));
+    client.println("</td><td></td><td>Analog output 01: ");
+    client.print(analogRead(a_out01));
+    client.println("</td></tr><tr><td>Digital output 02: ");
+    client.print(digitalRead(relay2));
+    client.println("</td><td></td><td>Analog output 02: ");
+    client.print(analogRead(a_out02));
+    client.println("</td></tr><tr><td>Digital output 03: ");
+    client.print(digitalRead(relay3));
+    client.println("</td><td></td><td>Analog output 03: ");
+    client.print(analogRead(a_out03));
+    client.println("</td></tr><tr><td>Digital output 04: ");
+    client.print(digitalRead(relay4));
+    client.println("</td><td></td><td>Analog output 04: ");
+    client.print(analogRead(a_out04));
+    client.println("</td></tr></table>");
 
-              client.println("</body>");
-              client.println("</html>");
-              
-              readString = "";
-              delay(10);
-              client.stop();
-              Serial.println();
+    client.println("<table><tr><td>Digital input 01: ");
+    client.print(digitalRead(din01));
+    client.println("</td><td>Analog input 01: ");
+    client.print(analogRead(a_in01));
+    client.println("</td></tr><tr><td>Digital input 02: ");
+    client.print(digitalRead(din02));
+    client.println("</td><td>Analog input 02: ");
+    client.print(analogRead(a_in02));
+    client.println("</td></tr><tr><td>Digital input 03: ");
+    client.print(digitalRead(din03));
+    client.println("</td><td>Analog input 03: ");
+    client.print(analogRead(a_in03));
+    client.println("</td></tr><tr><td>Digital input 04: "); 
+    client.print(digitalRead(din04));
+    client.println("</td><td>Analog input 04: ");
+    client.print(analogRead(a_in04));
+    client.println("</td></tr></table></body></html>");
+  
+  readString = "";
+  delay(10);
+  client.stop();
+  Serial.println();
 }
-
+//-------------
+//  load oled display
+//-------------
 void relay_state_screen(void) {
   display.clearDisplay();
 
@@ -371,6 +303,20 @@ void relay_state_screen(void) {
   display.println(r3);
   display.print(F("Relay 4: "));
   display.println(r4);
+
+  display.display();
+  delay(100);
+}
+void display_init(void){
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+
+  display.println(F("wifiPLC.init().."));
+  display.println(WiFi.SSID());
+  display.println(WiFi.localIP());
 
   display.display();
   delay(100);
