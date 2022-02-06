@@ -11,7 +11,6 @@
 //-----------------------------------------------------------------
 
 #include <WiFiNINA.h>
-#include <Arduino_LSM6DS3.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -63,24 +62,23 @@ long previousMillis2 = 0;
 long previousMillis3 = 0;
 float loopTime = 10;
 
-float x, y, z;
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 String readString;
 
 void setup(){
-  digitalWrite(relay1, LOW);      
-  digitalWrite(relay2, LOW);      
-  digitalWrite(relay3, LOW);      
-  digitalWrite(relay4, LOW);   
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-
   display_init();
+
+  digitalWrite(relay1, LOW);      
+  digitalWrite(relay2, LOW);      
+  digitalWrite(relay3, LOW);      
+  digitalWrite(relay4, LOW);   
 
   pinMode(relay1, OUTPUT);
   pinMode(relay2, OUTPUT);
@@ -113,7 +111,6 @@ void setup(){
   }
   
   server.begin();
-
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
   IPAddress ip = WiFi.localIP();
@@ -121,22 +118,6 @@ void setup(){
   Serial.println(ip);
   delay(1000);
 
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
-
-  Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
-  Serial.println(" Hz");
-  Serial.println();
-  Serial.println("Acceleration in G's");
-  Serial.println("X\tY\tZ");
-
-  digitalWrite(relay1, LOW);      
-  digitalWrite(relay2, LOW);      
-  digitalWrite(relay3, LOW);      
-  digitalWrite(relay4, LOW);      
 }
 
 void loop(){
@@ -147,10 +128,7 @@ void loop(){
 
       while (client.connected()){
         if (client.available()){
-          char c = client.read();   //*
-
-          accelRead();
-        
+          char c = client.read(); 
           if (readString.length() < 100){
             String aReader;
             readString += c;
@@ -200,39 +178,26 @@ void loop(){
                 if(!digitalRead(relay4))
                   r4 = "off";  
                 delay(1);
-              } else if(readString.indexOf("?a1") > 0){
-//                aReader = readString.substring(8, 11);
-                
-//                analogWrite(a_out01, aReader);
-//                Serial.print("Analog: ");
-//                Serial.println(aReader);
-//                delay(1);
+              } else if(readString.indexOf("?json") > 0){
+                jsonCode();
+                delay(1);
+              } else if(readString.indexOf("?status") > 0){
+                delay(1);
               } else{
-                Serial.println("Envia dado");
                 delay(1);
               }
 
-              relay_state_screen();
               htmlCode();
+              readString = "";
+              delay(10);
+              client.stop();
+
+              relay_state_screen();
             }
           }
         }  
       }  
     }
-}
-//-----------------------------------------------------------------
-//  acceloremeter reading
-//-----------------------------------------------------------------
-void  accelRead(){
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
-
-    Serial.print(x);
-    Serial.print('\t');
-    Serial.print(y);
-    Serial.print('\t');
-    Serial.println(z);
-  }
 }
 //-------------
 //  html code
@@ -244,46 +209,58 @@ void htmlCode(){
   client.println("<style>body{margin: 1rem; padding: 1rem; display: flex; flex-direction: column; justify-content: center; items-align: center; border: 1px solid #0f0;color: #0f0;background-color: #333;}");
   client.println("table{ }</style></head>");
 
-    client.println("<body><table><tr><td>Digital output 01: ");
-    client.print(digitalRead(relay1));
-    client.println("</td><td></td><td>Analog output 01: ");
-    client.print(analogRead(a_out01));
-    client.println("</td></tr><tr><td>Digital output 02: ");
-    client.print(digitalRead(relay2));
-    client.println("</td><td></td><td>Analog output 02: ");
-    client.print(analogRead(a_out02));
-    client.println("</td></tr><tr><td>Digital output 03: ");
-    client.print(digitalRead(relay3));
-    client.println("</td><td></td><td>Analog output 03: ");
-    client.print(analogRead(a_out03));
-    client.println("</td></tr><tr><td>Digital output 04: ");
-    client.print(digitalRead(relay4));
-    client.println("</td><td></td><td>Analog output 04: ");
-    client.print(analogRead(a_out04));
-    client.println("</td></tr></table>");
+  client.println("<body><table><tr><td>Digital output 01: ");
+  client.print(digitalRead(relay1));
+  client.println("</td><td></td><td>Analog output 01: ");
+  client.print(analogRead(a_out01));
+  client.println("</td></tr><tr><td>Digital output 02: ");
+  client.print(digitalRead(relay2));
+  client.println("</td><td></td><td>Analog output 02: ");
+  client.print(analogRead(a_out02));
+  client.println("</td></tr><tr><td>Digital output 03: ");
+  client.print(digitalRead(relay3));
+  client.println("</td><td></td><td>Analog output 03: ");
+  client.print(analogRead(a_out03));
+  client.println("</td></tr><tr><td>Digital output 04: ");
+  client.print(digitalRead(relay4));
+  client.println("</td><td></td><td>Analog output 04: ");
+  client.print(analogRead(a_out04));
+  client.println("</td></tr></table>");
 
-    client.println("<table><tr><td>Digital input 01: ");
-    client.print(digitalRead(din01));
-    client.println("</td><td>Analog input 01: ");
-    client.print(analogRead(a_in01));
-    client.println("</td></tr><tr><td>Digital input 02: ");
-    client.print(digitalRead(din02));
-    client.println("</td><td>Analog input 02: ");
-    client.print(analogRead(a_in02));
-    client.println("</td></tr><tr><td>Digital input 03: ");
-    client.print(digitalRead(din03));
-    client.println("</td><td>Analog input 03: ");
-    client.print(analogRead(a_in03));
-    client.println("</td></tr><tr><td>Digital input 04: "); 
-    client.print(digitalRead(din04));
-    client.println("</td><td>Analog input 04: ");
-    client.print(analogRead(a_in04));
-    client.println("</td></tr></table></body></html>");
+  client.println("<table><tr><td>Digital input 01: ");
+  client.print(digitalRead(din01));
+  client.println("</td><td>Analog input 01: ");
+  client.print(analogRead(a_in01));
+  client.println("</td></tr><tr><td>Digital input 02: ");
+  client.print(digitalRead(din02));
+  client.println("</td><td>Analog input 02: ");
+  client.print(analogRead(a_in02));
+  client.println("</td></tr><tr><td>Digital input 03: ");
+  client.print(digitalRead(din03));
+  client.println("</td><td>Analog input 03: ");
+  client.print(analogRead(a_in03));
+  client.println("</td></tr><tr><td>Digital input 04: "); 
+  client.print(digitalRead(din04));
+  client.println("</td><td>Analog input 04: ");
+  client.print(analogRead(a_in04));
+  client.println("</td></tr></table></body></html>");
+
+}
+void jsonCode(){
+  WiFiClient client = server.available();
   
-  readString = "";
-  delay(10);
-  client.stop();
-  Serial.println();
+  client.println("<html><head><meta charset='UTF-8'><title> Douglas Iot JSON</title>");
+  client.println("<style>body:backcround-color: #f00;</style></head>");
+
+  client.println("<body><p>{'Outputs': {'Out_1': ");
+  client.print(digitalRead(relay1));
+  client.println(", 'Out_2': ");
+  client.print(digitalRead(relay2));
+  client.println(", 'Out_3': ");
+  client.print(digitalRead(relay3));
+  client.println(", 'Out_3': ");
+  client.print(digitalRead(relay4));
+  client.println("}}</p></body></html>");
 }
 //-------------
 //  load oled display
